@@ -5,6 +5,7 @@ use std.textio.all;
 
 use work.cpu2j0_pack.all;
 use work.data_bus_pkg.all;
+use work.cpu_lattice_pack.all;
 
 --library sb_ice40_components_syn;
 --use sb_ice40_components_syn.components.all;

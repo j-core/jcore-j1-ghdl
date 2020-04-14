@@ -11,16 +11,14 @@ cpu_simple_sram.vhd lattice_spr_wrap.vhd cpu_bulk_sram.vhd
 DEVICE = up5k
 PACKAGE = sg48
 
-#STOP_TIME = 5sec
-STOP_TIME = 50ms
+STOP_TIME = 40us
 
-#RTL = $(LIB_RTL) $(TARGET)_pkg.vhd $(EXTRA_RTL) $(TARGET).vhm
-RTL = $(LIB_RTL) $(EXTRA_RTL) $(TARGET).vhd
+RTL = $(LIB_RTL) $(TARGET)_pkg.vhd $(EXTRA_RTL) $(TARGET).vhm
 TB_RTL = $(TARGET)_tb.vhd
 
 PREPROC_RTL = $(shell echo $(RTL) | sed -e s/\.vhm/\.vhd/g)
 OBJS =  $(shell echo $(RTL)    | sed -e s/\.vh[md]/\.o/g)
-TOBJS = $(shell echo $(TB_RTL) | sed -e s/\.vh[md]/\.o/g)
+TB_OBJS = $(shell echo $(TB_RTL) | sed -e s/\.vh[md]/\.o/g)
 
 .PRECIOUS: %.vhd %.txt
 
@@ -37,8 +35,7 @@ $(TARGET).json: $(OBJS)
 	ghdl -e $(TARGET)
 	yosys -m ghdl -p "ghdl $(TARGET); opt; opt_mem; synth_ice40 -device u -dsp -abc2 -retime -top $(TARGET) -json $@"
 
-$(TARGET)_tb: $(OBJS) $(TBOBJS)
-	echo $(OBJS)
+$(TARGET)_tb: $(OBJS) $(TB_OBJS)
 	ghdl -e $@
 	@touch $@
 
