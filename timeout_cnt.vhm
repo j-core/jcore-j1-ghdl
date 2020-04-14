@@ -20,15 +20,12 @@ end timeout_cnt;
 
 architecture structure of timeout_cnt is
 
-signal this_c : cnt_reg_t;
-signal this_r : cnt_reg_t := CNT_REG_RESET;
+register variable this : cnt_reg_t reset := CNT_REG_RESET;
 
 begin
-   counter : process(this_r,enable,ack)
-    variable this : cnt_reg_t;
+   counter : process(this,enable,ack)
+    register this when clk = '1' and clk'event reset when rst = '1';
     begin
-       this := this_r;
-
     if (enable = '1') then
        if (ack = '1') then
           this.cnt := 0;
@@ -40,24 +37,12 @@ begin
     else
  this.cnt := 0;
     end if;
-
-
-this_c <= this;
-end process;
-
-counter_r0 : process(clk, rst)
-begin
-   if rst = '1' then
-      this_r <= CNT_REG_RESET;
-   elsif clk = '1' and clk'event then
-      this_r <= this_c;
-   end if;
 end process;
 
 --timeout <= '1' when (this.cnt = timeout_cc) else '0';
 
-timeout.cnt <= this_r.cnt;
+timeout.cnt <= this'register.cnt;
 
-fault <= '1' when (this_r.cnt = timeout_cc) else '0';
+fault <= '1' when (this'register.cnt = timeout_cc) else '0';
 
 end structure;

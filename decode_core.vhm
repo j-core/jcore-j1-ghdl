@@ -109,7 +109,7 @@ architecture arch of decode_core is
 begin
 
   decode_core : process(this,slot,next_id_stall_a,ilevel_cap,dispatch,maskint_next,delay_jump,event_i,next_op)
-    register this when clk='1' and slot='1' and clk'event reset when rst='1';
+    register this when clk='1' and clk'event reset when rst='1';
   begin
      this := this'register;
 
