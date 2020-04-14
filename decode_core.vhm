@@ -57,8 +57,7 @@ architecture arch of decode_core is
   signal maskint : std_logic;
   signal delay_slot : std_logic;
 
-  signal this_c : decode_core_reg_t;
-  signal this_r : decode_core_reg_t := reset_vector;
+  register variable this : decode_core_reg_t reset := reset_vector;
 
   function system_op (code : std_logic_vector(15 downto 0); instr : system_instr_t)
   return operation_t is
@@ -109,10 +108,10 @@ architecture arch of decode_core is
   end;
 begin
 
-  decode_core : process(this_r,slot,next_id_stall_a,ilevel_cap,dispatch,maskint_next,delay_jump,event_i,next_op)
-    variable this : decode_core_reg_t;
+  decode_core : process(this,slot,next_id_stall_a,ilevel_cap,dispatch,maskint_next,delay_jump,event_i,next_op)
+    register this when clk='1' and slot='1' and clk'event reset when rst='1';
   begin
-     this := this_r;
+     this := this'register;
 
     if slot = '1' then
       this.maskint := maskint_next;
@@ -129,22 +128,11 @@ begin
         this.op.addr := std_logic_vector(unsigned(this.op.addr) + 1);
       end if;
     end if;
-
-    this_c <= this;
   end process;
 
-  decode_core_r0 : process(clk, rst)
-  begin
-     if rst='1' then
-        this_r <= reset_vector;
-     elsif clk='1' and clk'event then
-        this_r <= this_c;
-     end if;
-  end process;
-
-  maskint <= this_r.maskint;
-  delay_slot <= this_r.delay_slot;
-  ilevel <= this_r.ilevel;
+  maskint <= this'register.maskint;
+  delay_slot <= this'register.delay_slot;
+  ilevel <= this'register.ilevel;
 
   mac_stall <= mac_stall_sense and (p.wb1.mac_busy or p.wb2.mac_busy or
                                     p.wb3.mac_busy or p.ex1.mac_busy or mac_busy);
@@ -181,7 +169,7 @@ begin
 
     event_ack <= '1' when slot = '1' and (event_ack_0 = '1' or (event_i.en = '1' and event_i.cmd = BREAK and debug = '1') ) else '0';
 
-    op <= this_r.op when this_r.id_stall = '1' or this_r.instr_seq_zero = '0'
+    op <= this'register.op when this'register.id_stall = '1' or this'register.instr_seq_zero = '0'
           else next_op;
 
     -- Detect register conflict

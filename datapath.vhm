@@ -55,13 +55,12 @@ architecture stru of datapath is
  signal ybus_override : bus_val_t;
  signal slot_o : std_logic;
 
-        signal div1_arith_func : arith_func_t;
-        signal arith_func : arith_func_t;
-        signal arith_out : std_logic_vector(32 downto 0);
-        signal logic_out : std_logic_vector(31 downto 0);
+ signal div1_arith_func : arith_func_t;
+ signal arith_func : arith_func_t;
+ signal arith_out : std_logic_vector(32 downto 0);
+ signal logic_out : std_logic_vector(31 downto 0);
 
- signal this_c : datapath_reg_t;
- signal this_r : datapath_reg_t := DATAPATH_RESET;
+ register variable this : datapath_reg_t reset := DATAPATH_RESET;
 
         -- The functions to_sr and to_slv convert between the sr record and its CPU register representation.
         function to_sr(a : std_logic_vector(31 downto 0)) return sr_t is
@@ -204,14 +203,12 @@ begin
 
  ibit <= sr.int_mask;
 
- datapath : process(this_r,pc_ctrl,wbus,zbus,sr_ctrl, xbus, ybus, mac,mem, instr, db_i, inst_i, debug, debug_i,reg_wr_data_o, logic_out, arith_out, arith_func, func, sfto)
-   variable this : datapath_reg_t;
+ datapath : process(this,pc_ctrl,wbus,zbus,sr_ctrl, xbus, ybus, mac,mem, instr, db_i, inst_i, debug, debug_i,reg_wr_data_o, logic_out, arith_out, arith_func, func, sfto)
+          register this when clk='1' and clk'event reset when rst='1';
           variable if_ad : std_logic_vector(31 downto 0);
           variable ma_ad, ma_dw : std_logic_vector(31 downto 0);
           variable next_state : debug_state_t;
         begin
-           this := this_r;
-
           this.debug_o.ack := '0';
 
           next_state := this.debug_state;
@@ -428,38 +425,27 @@ begin
           else
             this.debug_o.rdy := '0';
           end if;
-
-          this_c <= this;
  end process;
 
- datapath_r0 : process(clk, rst)
- begin
-    if rst='1' then
-       this_r <= DATAPATH_RESET;
-    elsif clk='1' and clk'event then
-       this_r <= this_c;
-    end if;
- end process;
+ pc <= this'register.pc;
+ sr <= this'register.sr;
+ mac_s <= this'register.mac_s;
+        db_lock <= this'register.data_o_lock;
+        db_o <= this'register.data_o;
+        inst_o <= this'register.inst_o;
+        if_dr <= this'register.if_dr;
+        illegal_delay_slot <= this'register.illegal_delay_slot;
+        illegal_instr <= this'register.illegal_instr;
 
- pc <= this_r.pc;
- sr <= this_r.sr;
- mac_s <= this_r.mac_s;
-        db_lock <= this_r.data_o_lock;
-        db_o <= this_r.data_o;
-        inst_o <= this_r.inst_o;
-        if_dr <= this_r.if_dr;
-        illegal_delay_slot <= this_r.illegal_delay_slot;
-        illegal_instr <= this_r.illegal_instr;
-
-        wbus <= this_r.m_dr;
-        slot_o <= this_c.slot;
+        wbus <= this'register.m_dr;
+        slot_o <= this'combinatorial.slot;
         -- Need to output T combinatorially so that decoder can make
         -- conditional branch decisions
-        t_bcc <= this_c.sr.t;
-        enter_debug <= this_r.enter_debug(0);
-        mask_int <= '0' when this_r.debug_state = RUN and this_r.enter_debug = (this_r.enter_debug'range => '0') else '1';
-        debug_o <= this_c.debug_o;
-        ybus_override <= this_r.ybus_override(0);
+        t_bcc <= this'combinatorial.sr.t;
+        enter_debug <= this'register.enter_debug(0);
+        mask_int <= '0' when this'register.debug_state = RUN and this'register.enter_debug = (this'register.enter_debug'range => '0') else '1';
+        debug_o <= this'combinatorial.debug_o;
+        ybus_override <= this'register.ybus_override(0);
 
         if_stall <= '0';
         slot <= slot_o;

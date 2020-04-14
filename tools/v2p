@@ -228,6 +228,7 @@ while(<STDIN>)
 # look for register attribute, replace it.  FIXME: wrong place, no error checking.
  if ($line_valid eq "yes") {
    $line =~ s/(\w)\'register/$1_r/gi;
+   $line =~ s/(\w)\'combinatorial/$1_c/gi;
    push(@diversion, "$white$line$comment");
  }
 }

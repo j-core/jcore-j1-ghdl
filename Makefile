@@ -1,7 +1,7 @@
 TARGET = cpu_lattice
 LIB_RTL = \
 cpu2j0_pkg.vhd components_pkg.vhd mult_pkg.vhd decode_pkg.vhd decode_body.vhd datapath_pkg.vhd \
-cpu.vhd decode.vhd decode_core.vhd decode_table.vhd datapath.vhd register_file_sync.vhd mult.vhd \
+cpu.vhd decode.vhd decode_core.vhm decode_table.vhd datapath.vhm register_file_sync.vhd mult.vhm \
 decode_table_reverse.vhd
 #decode_table_rom.vhd
 #decode_table_simple.vhd
