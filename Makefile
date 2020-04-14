@@ -60,6 +60,6 @@ unload_ftdi:
 
 clean:
 	- rm *.json *.txt *.bin
-	- rm $(RTL) | sed -e "s/[^ ]*\.vhd//g" -e "s/\.vhm/.vhd/g"
+	- rm $(shell echo $(RTL) | sed -e "s/[^ ]*\.vhd//g" -e "s/\.vhm/.vhd/g")
 	- rm *.[oa] *.cf $(TARGET)_tb $(TARGET)_tb.ghw core
 	true
