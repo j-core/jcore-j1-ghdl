@@ -43,7 +43,7 @@ $(TARGET)_tb.ghw: $(TARGET)_tb
 	ghdl -r $(TARGET)_tb --wave=$(TARGET)_tb.ghw --stop-time=$(STOP_TIME)
 
 %.txt: %.json %.pcf
-	nextpnr-ice40 --$(DEVICE) --opt-timing --package=$(PACKAGE) --json $< --pcf `basename -s .json $<`.pcf --asc $@
+	nextpnr-ice40 --$(DEVICE) --opt-timing --package=$(PACKAGE) --json $< --pcf `basename -s .json $<`.pcf --asc $@ --sdf $@.sdf
 
 %.bin: %.txt
 	icepack $< $@
