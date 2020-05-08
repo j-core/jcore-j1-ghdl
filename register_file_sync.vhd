@@ -162,8 +162,10 @@ begin
 
       -- the decoder should never schedule a write to a register for both Z and
       -- W bus at the same time
+-- synthesis translate_off
       assert (wb_pipe.en and ex_pipes(2).en) = '0'
         report "Write clash detected" severity warning;
+-- synthesis translate_on
 
       addr := wb_pipe.addr;
       data := wb_pipe.data;
