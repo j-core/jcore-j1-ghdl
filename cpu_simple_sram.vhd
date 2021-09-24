@@ -4,7 +4,7 @@ use ieee.numeric_std.all;
 use work.cpu2j0_pack.all;
 
 entity cpu_sram is 
-  generic ( ADDR_WIDTH : natural := 13 );
+  generic ( ADDR_WIDTH : natural := 15 );
   port (
     clk : in std_logic;
     ibus_i : in cpu_instruction_o_t;

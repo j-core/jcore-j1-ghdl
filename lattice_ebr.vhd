@@ -3,7 +3,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use work.bootrom.all;
+use work.rawfile_pack.all;
 
 entity simple_ram is
   generic (
@@ -25,7 +25,7 @@ end simple_ram;
 
 architecture behavioral of simple_ram is
   constant NUM_WORDS : integer :=  2**(ADDR_WIDTH - 2);
-  signal ram : rom_t := work.bootrom.rom;
+  signal ram : rom32_t(0 to NUM_WORDS-1) := fread_elf("boot.elf", NUM_WORDS);
 begin
 
   process (clk, en)
