@@ -17,8 +17,10 @@ end;
 architecture struc of cpu_sram is
   signal db_we : std_logic_vector(3 downto 0);
   signal rd    : std_logic_vector(31 downto 0);
+  signal rdo   : std_logic_vector(15 downto 0) := (others => '0');
   signal ra    : std_logic_vector(ADDR_WIDTH-1 downto 2);
   signal en    : std_logic;
+  signal ien   : std_logic := '0';
   signal iclk : std_logic;
       
 begin
@@ -28,7 +30,7 @@ begin
            (db_i.wr and db_i.we(1)) &
            (db_i.wr and db_i.we(0));
 
-  ra <= db_i.a(ADDR_WIDTH-1 downto 2) when db_i.en = '1' else ibus_i.a(ADDR_WIDTH-1 downto 2);
+  ra <= db_i.a(ADDR_WIDTH-1 downto 2) when ibus_i.en = '0' or (ibus_i.a(1) = '1' and ibus_i.jp = '0') else ibus_i.a(ADDR_WIDTH-1 downto 2);
 
   -- clk memory on negative edge to avoid wait states
   iclk <= not clk;
@@ -47,10 +49,14 @@ begin
 
   -- (too) simple output mux
   db_o.d   <= rd;
-  ibus_o.d <= rd(31 downto 16) when ibus_i.a(1) = '0' else rd(15 downto 0);
+  ibus_o.d <= rd(31 downto 16) when ibus_i.a(1) = '0' else rdo when ibus_i.jp = '0' else rd(15 downto 0);
+
+  -- low ins latch
+  ien      <= ibus_i.en when clk'event and clk = '0';
+  rdo      <= rd(15 downto 0) when clk'event and clk = '1' and ien = '1' and ibus_i.a(1) = '0';
 
   -- simply ack immediately. Should this simulate different delays?
-  db_o.ack <= db_i.en;
-  ibus_o.ack <= ibus_i.en when db_i.en = '0' else '0';
+  ibus_o.ack <= ibus_i.en;
+  db_o.ack   <= db_i.en when ibus_i.en = '0' or db_i.wr = '1' or (ibus_i.a(1) = '1' and ibus_i.jp = '0') else '0';
 
 end architecture struc;
