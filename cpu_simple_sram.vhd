@@ -15,7 +15,6 @@ entity cpu_sram is
 end;
 
 architecture struc of cpu_sram is
-  signal db_we : std_logic_vector(3 downto 0);
   signal rd    : std_logic_vector(31 downto 0);
   signal rdo   : std_logic_vector(15 downto 0) := (others => '0');
   signal ra    : std_logic_vector(ADDR_WIDTH-1 downto 2);
@@ -24,11 +23,6 @@ architecture struc of cpu_sram is
   signal iclk : std_logic;
       
 begin
-
-  db_we <= (db_i.wr and db_i.we(3)) &
-           (db_i.wr and db_i.we(2)) &
-           (db_i.wr and db_i.we(1)) &
-           (db_i.wr and db_i.we(0));
 
   ra <= db_i.a(ADDR_WIDTH-1 downto 2) when ibus_i.en = '0' or (ibus_i.a(1) = '1' and ibus_i.jp = '0') else ibus_i.a(ADDR_WIDTH-1 downto 2);
 
@@ -40,7 +34,7 @@ begin
     generic map (ADDR_WIDTH => ADDR_WIDTH)
     port map(clk => iclk,
              en => en,
-             we => db_we,
+             we => db_i.we,
              waddr => db_i.a(ADDR_WIDTH-1 downto 2),
              di => db_i.d,
 

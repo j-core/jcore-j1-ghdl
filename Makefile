@@ -12,7 +12,7 @@ cpu_simple_sram.vhd lattice_spr_wrap.vhd cpu_bulk_sram.vhd
 DEVICE = up5k
 PACKAGE = sg48
 
-STOP_TIME = 40us
+STOP_TIME = 1ms
 
 RTL = $(LIB_RTL) $(TARGET)_pkg.vhd $(EXTRA_RTL) $(TARGET).vhm
 TB_RTL = $(TARGET)_tb.vhd
