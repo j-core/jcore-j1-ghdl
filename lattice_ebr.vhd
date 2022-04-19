@@ -25,7 +25,7 @@ end simple_ram;
 
 architecture behavioral of simple_ram is
   constant NUM_WORDS : integer :=  2**(ADDR_WIDTH - 2);
-  signal ram : rom32_t(0 to NUM_WORDS-1) := fread_elf("images/testrom.elf", NUM_WORDS);
+  signal ram : rom32_t(0 to NUM_WORDS-1) := fread_elf("boot.elf", NUM_WORDS);
 begin
 
   process (clk, en)
