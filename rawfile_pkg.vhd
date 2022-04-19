@@ -220,7 +220,7 @@ package body rawfile_pack is
          if u = elf32_pt_load then
             fread(f, fd, p_offset);
             fread(f, fd, v); -- p_vaddr
-            assert v=0 report "FIXME: I can't deal with non zero load address" severity failure;
+            assert v=0 report "Virtual segment addr  " & natural'image(v) severity warning;
             fread(f, fd, p_paddr);
             fread(f, fd, p_filesz);
             assert p_filesz < l   report "ROM contents overrun" severity failure;
@@ -229,7 +229,7 @@ package body rawfile_pack is
             fseek(f, fd, p_offset);
             for j in 0 to p_filesz-1 loop
                fread(f, fd, u8);
-               r.all(j) := std_logic_vector(u8);
+               r.all(j+p_paddr) := std_logic_vector(u8);
             end loop;
          else
             -- report "-Segment type " & hex(u);
@@ -277,7 +277,7 @@ package body rawfile_pack is
          if u = elf32_pt_load then
             fread(f, fd, p_offset);
             fread(f, fd, v); -- p_vaddr
-            assert v=0 report "FIXME: I can't deal with non zero load address" severity failure;
+            assert v=0 report "Virtual segment addr  " & natural'image(v) severity warning;
             fread(f, fd, p_paddr);
             fread(f, fd, p_filesz);
             assert p_filesz < l*2 report "ROM contents overrun" severity failure;
@@ -286,7 +286,7 @@ package body rawfile_pack is
             fseek(f, fd, p_offset);
             for j in 0 to (p_filesz+1)/2-1 loop
                fread(f, fd, u16);
-               r.all(j) := std_logic_vector(u16);
+               r.all(j+p_paddr/2) := std_logic_vector(u16);
             end loop;
          else
             -- report "-Segment type " & hex(u);
@@ -334,7 +334,7 @@ package body rawfile_pack is
          if u = elf32_pt_load then
             fread(f, fd, p_offset);
             fread(f, fd, v); -- p_vaddr
-            assert v=0 report "FIXME: I can't deal with non zero load address" severity failure;
+            assert v=0 report "Virtual segment addr  " & natural'image(v) severity warning;
             fread(f, fd, p_paddr);
             fread(f, fd, p_filesz);
             assert p_filesz < l*4 report "ROM contents overrun" severity failure;
@@ -343,7 +343,7 @@ package body rawfile_pack is
             fseek(f, fd, p_offset);
             for j in 0 to (p_filesz+3)/4-1 loop
                fread(f, fd, u32);
-               r.all(j) := std_logic_vector(u32);
+               r.all(j+p_paddr/4) := std_logic_vector(u32);
             end loop;
          else
             -- report "-Segment type " & hex(u);
