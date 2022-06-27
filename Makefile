@@ -6,7 +6,7 @@ decode_table_reverse.vhd
 #decode_table_rom.vhd
 #decode_table_simple.vhd
 EXTRA_RTL = \
-rawfile_pkg.vhd \
+clk_pkg.vhd rawfile_pkg.vhd \
 data_bus_pkg.vhd monitor_pkg.vhd lattice_ebr.vhd bus_monitor.vhd timeout_cnt.vhm \
 cpu_simple_sram.vhd lattice_spr_wrap.vhd cpu_bulk_sram.vhd
 DEVICE = up5k
