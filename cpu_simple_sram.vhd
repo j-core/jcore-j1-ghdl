@@ -20,8 +20,8 @@ architecture struc of cpu_sram is
   signal ra    : std_logic_vector(ADDR_WIDTH-1 downto 2);
   signal en    : std_logic;
   signal ien   : std_logic := '0';
-  signal iclk : std_logic;
-      
+  signal iclk  : std_logic;
+  signal we    : std_logic_vector(3 downto 0);
 begin
 
   ra <= db_i.a(ADDR_WIDTH-1 downto 2) when ibus_i.en = '0' or (ibus_i.a(1) = '1' and ibus_i.jp = '0') else ibus_i.a(ADDR_WIDTH-1 downto 2);
@@ -29,12 +29,13 @@ begin
   -- clk memory on negative edge to avoid wait states
   iclk <= not clk;
   en <= db_i.en or ibus_i.en;
+  we <= db_i.we when db_i.en = '1' else "0000";
 
   r : entity work.simple_ram
     generic map (ADDR_WIDTH => ADDR_WIDTH)
     port map(clk => iclk,
              en => en,
-             we => db_i.we,
+             we => we,
              waddr => db_i.a(ADDR_WIDTH-1 downto 2),
              di => db_i.d,
 

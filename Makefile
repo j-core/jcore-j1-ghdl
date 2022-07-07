@@ -15,7 +15,7 @@ PACKAGE = sg48
 STOP_TIME = 1ms
 
 RTL = $(LIB_RTL) $(TARGET)_pkg.vhd $(EXTRA_RTL) $(TARGET).vhm
-TB_RTL = $(TARGET)_tb.vhd
+TB_RTL = spram_sim.vhd $(TARGET)_tb.vhd
 
 PREPROC_RTL = $(shell echo $(RTL) | sed -e s/\.vhm/\.vhd/g)
 OBJS =  $(shell echo $(RTL)    | sed -e s/\.vh[md]/\.o/g)

@@ -38,7 +38,7 @@ begin
          write(l, string'("LED: Write "));
          write(l, to_hex_string(led));
          write(l, " at " & time'image(now));
-         writeline(output, l);
+         -- writeline(output, l);
       end if;
    end process;
 

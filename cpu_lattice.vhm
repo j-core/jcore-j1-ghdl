@@ -12,7 +12,7 @@ use work.cpu_lattice_pack.all;
 use work.clk_pkg.all;
 
 entity cpu_lattice is port (
---   clk : in std_logic;
+   clk : in std_logic;
    led : out std_logic_vector(7 downto 0));
 end;
 
@@ -46,13 +46,26 @@ architecture behaviour of cpu_lattice is
   signal vh : std_logic;
 
   signal rst_cnt : integer range 0 to 15 := 0;
-  signal clk : std_logic;
+  --signal clk : std_logic;
+
+  function to_hex_string(s: in std_logic_vector) return string is
+    constant hex : string (1 to 16) := "0123456789ABCDEF";
+    variable ss  : std_logic_vector(31 downto 0) := (others => '0');
+    variable ret : string (1 to ss'left/4+1);
+  begin
+    ss(s'range) := s;
+    for i in 0 to ss'left/4 loop
+      ret(i+1) := hex(to_integer(unsigned(ss(ss'left - i*4 downto ss'left - i*4 -3)))+1);
+    end loop;
+   return ret;
+  end to_hex_string;
+
 begin
 --  rst <= '1', '0' after 10 ns;
 
   vh <= '1';
-  ck: SB_HFOSC generic map (CLKHF_DIV => "0b10")
-               port map (CLKHFEN => vh, CLKHF => clk, CLKHFPU => vh);
+--  ck: SB_HFOSC generic map (CLKHF_DIV => "0b10")
+ --              port map (CLKHFEN => vh, CLKHF => clk, CLKHFPU => vh);
 
 
   rs0: process(clk, rst, rst_cnt)
@@ -156,6 +169,51 @@ begin
           -- hack to better display the gdb remote protocol messages
           writeline(output, uart_line);
           end if;
+        end if;
+      end if;
+
+      if data_slaves_o(DEV_BRAM).en = '1' then
+        if data_slaves_o(DEV_BRAM).wr = '1' then
+          write(l, string'("SPRAM: Write:"));
+          write(l, to_hex_string(data_slaves_o(DEV_BRAM).a));
+          write(l, string'(" <= "));
+          write(l, to_hex_string(data_slaves_o(DEV_BRAM).d));
+          write(l, string'(" "));
+          if data_slaves_o(DEV_BRAM).we(3) = '1' then write(l, string'("1")); else write(l, string'("0")); end if;
+          if data_slaves_o(DEV_BRAM).we(2) = '1' then write(l, string'("1")); else write(l, string'("0")); end if;
+          if data_slaves_o(DEV_BRAM).we(1) = '1' then write(l, string'("1")); else write(l, string'("0")); end if;
+          if data_slaves_o(DEV_BRAM).we(0) = '1' then write(l, string'("1")); else write(l, string'("0")); end if;
+          if data_slaves_o(DEV_BRAM).we = "1111" and data_slaves_o(DEV_BRAM).a(1 downto 0) /= "00" then write(l, string'("Unaligned")); end if;
+          if data_slaves_o(DEV_BRAM).we = "1100" and data_slaves_o(DEV_BRAM).a(0 downto 0) /=  "0" then write(l, string'("Unaligned")); end if;
+          if data_slaves_o(DEV_BRAM).we = "0011" and data_slaves_o(DEV_BRAM).a(0 downto 0) /=  "0" then write(l, string'("Unaligned")); end if;
+        else
+          write(l, string'("SPRAM: Read :"));
+          write(l, to_hex_string(data_slaves_o(DEV_BRAM).a));
+          write(l, string'(" => "));
+          write(l, to_hex_string(data_slaves_i(DEV_BRAM).d));
+        end if;
+        writeline(output, l);
+      end if;
+
+      if data_slaves_o(DEV_PIO).en = '1' then
+        if data_slaves_o(DEV_PIO).wr = '1' then
+          write(l, string'("LED: Write:"));
+          write(l, to_hex_string(data_slaves_o(DEV_PIO).d));
+        end if;
+        writeline(output, l);
+      end if;
+
+      if instr_master_o.en = '1' and instr_master_o.a(31 downto 16) /= x"0000" then
+          report "Fetch from outside ROM" severity failure;
+      end if;
+
+      if data_slaves_o(DEV_SRAM).en = '1' then
+        if data_slaves_o(DEV_SRAM).wr = '1' then
+          write(l, string'("ROM: Write:"));
+          write(l, to_hex_string(data_slaves_o(DEV_SRAM).a));
+          write(l, string'(" <= "));
+          write(l, to_hex_string(data_slaves_o(DEV_SRAM).d));
+          writeline(output, l);
         end if;
       end if;
 -- synthesis translate_on
