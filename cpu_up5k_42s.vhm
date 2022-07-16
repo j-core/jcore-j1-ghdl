@@ -186,7 +186,7 @@ begin
                      event_i => event_i, event_o => event_o);
 
   sram : entity work.cpu_sram
-    generic map(ADDR_WIDTH => 13)
+    generic map(ADDR_WIDTH => 14)
     port map(clk => clk,
              ibus_i => instr_slaves_o(DEV_SRAM),
              ibus_o => instr_slaves_i(DEV_SRAM),

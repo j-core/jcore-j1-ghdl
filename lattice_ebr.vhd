@@ -24,7 +24,7 @@ entity simple_ram is
 end simple_ram;
 
 architecture behavioral of simple_ram is
-  constant NUM_WORDS : integer :=  2**(ADDR_WIDTH - 2);
+  constant NUM_WORDS : integer :=  3072; -- HACK 2**(ADDR_WIDTH - 2);
   signal ram : rom32_t(0 to NUM_WORDS-1) := fread_elf("boot.elf", NUM_WORDS);
 begin
 
