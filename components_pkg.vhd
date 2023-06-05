@@ -204,8 +204,7 @@ return std_logic_vector is
 
   variable is_sub : std_logic;
   variable b2 : std_logic_vector(xb'range);
-  variable sum : unsigned(a'length downto 0);
-  variable carry_in : unsigned(a'length downto 0);
+  variable sum : unsigned(a'length+1 downto 0);
 begin
   if a'length /= b'length then
     assert NO_WARNING
@@ -225,14 +224,12 @@ begin
   -- r = A+not(B)+1-ci = A+not(B)+1-1 = A+not(B) when ci = 1
   --                   = A+not(B)+1              when ci = 0
   -- Xor-ing the ci by is_sub gives the correct calculation.
-  carry_in := (others => '0');
-  carry_in(0) := is_sub xor ci;
 
-  sum := ('0' & unsigned(xa)) + ('0' & unsigned(b2)) + carry_in;
+  sum := ('0' & unsigned(xa) & '1') + ('0' & unsigned(b2) & (is_sub xor ci));
 
   -- convert left-most bit to a borrow instead of carry out when doing a subtraction
   sum(sum'left) := sum(sum'left) xor is_sub;
-  return std_logic_vector(sum);
+  return std_logic_vector(sum(a'length+1 downto 1));
 end;
 
 function logic_unit(
